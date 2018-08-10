@@ -603,7 +603,8 @@ func (tree *Rtree) condenseTree(n *node) {
 // Implemented per Section 3.1 of "R-trees: A Dynamic Index Structure for
 // Spatial Searching" by A. Guttman, Proceedings of ACM SIGMOD, p. 47-57, 1984.
 func (tree *Rtree) SearchIntersect(bb *Rect, filters ...Filter) []Spatial {
-	return tree.searchIntersect([]Spatial{}, tree.root, bb, filters)
+	results, _ := tree.searchIntersect([]Spatial{}, tree.root, bb, filters)
+	return results
 }
 
 // SearchIntersectWithLimit is similar to SearchIntersect, but returns
@@ -621,27 +622,31 @@ func (tree *Rtree) SearchIntersectWithLimit(k int, bb *Rect) []Spatial {
 	return tree.SearchIntersect(bb, LimitFilter(k))
 }
 
-func (tree *Rtree) searchIntersect(results []Spatial, n *node, bb *Rect, filters []Filter) []Spatial {
+func (tree *Rtree) searchIntersect(results []Spatial, n *node, bb *Rect, filters []Filter) ([]Spatial, bool) {
+	var refuse, abort bool
 	for _, e := range n.entries {
 		if intersect(e.bb, bb) == nil {
 			continue
 		}
 
 		if !n.leaf {
-			results = tree.searchIntersect(results, e.child, bb, filters)
+			results, abort = tree.searchIntersect(results, e.child, bb, filters)
+			if abort {
+				return results, abort
+			}
 			continue
 		}
 
-		refuse, abort := applyFilters(results, e.obj, filters)
+		refuse, abort = applyFilters(results, e.obj, filters)
 		if !refuse {
 			results = append(results, e.obj)
 		}
 
 		if abort {
-			break
+			return results, abort
 		}
 	}
-	return results
+	return results, false
 }
 
 // NearestNeighbor returns the closest object to the specified point.
