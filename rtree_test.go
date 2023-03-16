@@ -1153,14 +1153,14 @@ func TestNearestNeighborsAll(t *testing.T) {
 			p := Point{0.5, 0.5}
 			sort.Sort(byMinDist{things, p})
 
-			objs := rt.NearestNeighbors(len(things), p)
+			objs := rt.NearestNeighbors(nil, len(things), p)
 			for i := range things {
 				if objs[i] != things[i] {
 					t.Errorf("NearestNeighbors failed at index %d: %v != %v", i, objs[i], things[i])
 				}
 			}
 
-			objs = rt.NearestNeighbors(len(things)+2, p)
+			objs = rt.NearestNeighbors(nil, len(things)+2, p)
 			if len(objs) > len(things) {
 				t.Errorf("NearestNeighbors failed: too many elements")
 			}
@@ -1191,7 +1191,7 @@ func TestNearestNeighborsFilters(t *testing.T) {
 			p := Point{0.5, 0.5}
 			sort.Sort(byMinDist{expected, p})
 
-			objs := rt.NearestNeighbors(len(things), p, func(r []Spatial, obj Spatial) (bool, bool) {
+			objs := rt.NearestNeighbors(nil, len(things), p, func(r []Spatial, obj Spatial) (bool, bool) {
 				for _, ex := range expected {
 					if ex == obj {
 						return false, false
@@ -1223,14 +1223,14 @@ func TestNearestNeighborsHalf(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			rt := tc.build()
 
-			objs := rt.NearestNeighbors(3, p)
+			objs := rt.NearestNeighbors(nil, 3, p)
 			for i := range objs {
 				if objs[i] != things[i] {
 					t.Errorf("NearestNeighbors failed at index %d: %v != %v", i, objs[i], things[i])
 				}
 			}
 
-			objs = rt.NearestNeighbors(len(things)+2, p)
+			objs = rt.NearestNeighbors(nil, len(things)+2, p)
 			if len(objs) > len(things) {
 				t.Errorf("NearestNeighbors failed: too many elements")
 			}
