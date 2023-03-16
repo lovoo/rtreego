@@ -6,6 +6,7 @@
 package rtreego
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"sort"
@@ -756,7 +757,7 @@ func (tree *Rtree) nearestNeighbor(p Point, n *node, d float64, nearest Spatial)
 }
 
 // NearestNeighbors gets the closest Spatials to the Point.
-func (tree *Rtree) NearestNeighbors(k int, p Point, filters ...Filter) []Spatial {
+func (tree *Rtree) NearestNeighbors(ctx context.Context, k int, p Point, filters ...Filter) []Spatial {
 	// preallocate the buffers for sortings the branches. At each level of the
 	// tree, we slide the buffer by the number of entries in the node.
 	maxBufSize := tree.MaxChildren * tree.Depth()
